@@ -1,0 +1,123 @@
+---
+title: "heritabilities"
+author: "Zebadiah G. Yoko"
+date: "June 4, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r import libraries, include=FALSE}
+library(dplyr)
+library(lmerTest)
+library(lme4)
+library(effects)
+library(dhglm)
+library(glmm)
+library(car)
+```
+
+```{r setwd and import doc, include=FALSE}
+setwd("C:/Users/zebadiah/NDSU Dropbox/Dropbox/Geum triflorum/Master_Datasheets")
+
+cg.17 <- read.csv('NV_CG_2017.csv')
+
+```
+
+```{r flowering 2017}
+flr.17 <- filter(cg.17, Flower.Y.N.2017 >= 1)
+flr.17$norm.flower.date.2017 <-as.numeric(flr.17$norm.flower.date.2017)
+dtff.mod<- glmer(norm.flower.date.2017~Region + (1 | Population) + 
+					  	(1 | Family.Unique) + (1 | Block.ID), data = flr.17,
+					    family = poisson(link=log))
+dtff.out <-	summary(dtff.mod)
+dtff.out
+
+```
+
+
+```{r residual.flower, echo=FALSE}
+#store residuals
+dtff.resid <- residuals(dtff.mod)
+mean(dtff.resid)
+sd(dtff.resid)
+n.dtff <- rnorm(1319, mean(dtff.resid), sd(dtff.resid))
+par(mfrow=c(1,2))
+hist(dtff.resid)
+hist(n.dtff)
+```
+### Trying different fits###
+
+```{r, flower-Gamma}
+flr.17 <- filter(cg.17, Flower.Y.N.2017 >= 1)
+flr.17$norm.flower.date.2017 <-as.numeric(flr.17$norm.flower.date.2017)
+dtff.mod<- glmer(norm.flower.date.2017~Region + (1 | Population) + 
+					  	(1 | Family.Unique) + (1 | Block.ID), data = flr.17,
+					    family = Gamma(link=log))
+dtff.out <-	summary(dtff.mod)
+dtff.out
+```
+```{r}
+#store residuals
+dtff.resid <- residuals(dtff.mod)
+mean(dtff.resid)
+sd(dtff.resid)
+n.dtff <- rnorm(1319, mean(dtff.resid), sd(dtff.resid))
+par(mfrow=c(1,2))
+hist(dtff.resid)
+hist(n.dtff)
+```
+
+```{r}
+dtff.mod<- glmer.nb(norm.flower.date.2017~Region + (1 | Population) + 
+					  	(1 | Family.Unique) + (1 | Block.ID), data = flr.17)
+dtff.out <-	summary(dtff.mod)
+dtff.out
+```
+```{r}
+dtff.mod<- lmer(norm.flower.date.2017~Region + (1 | Population) + 
+					  	(1 | Family.Unique) + (1 | Block.ID), data = flr.17)
+dtff.out <-	summary(dtff.mod)
+dtff.out
+```
+
+```{r}
+#store residuals
+dtff.resid <- residuals(dtff.mod)
+mean(dtff.resid)
+sd(dtff.resid)
+n.dtff <- rnorm(1319, mean(dtff.resid), sd(dtff.resid))
+par(mfrow=c(1,2))
+hist(dtff.resid)
+hist(n.dtff)
+```
+
+```{r}
+flr.17 <- filter(cg.17, Flower.Y.N.2017 >= 1)
+flr.17$norm.flower.date.2017 <-as.numeric(flr.17$norm.flower.date.2017)
+dtff.mod<- glmer(norm.flower.date.2017~Region + (1 | Population) + 
+					  	(1 | Family.Unique) + (1 | Block.ID), data = flr.17,
+					    family = poisson(link=identity))
+dtff.out <-	summary(dtff.mod)
+dtff.out
+```
+
+```{r}
+#store residuals
+dtff.resid <- residuals(dtff.mod)
+mean(dtff.resid)
+sd(dtff.resid)
+n.dtff <- rnorm(1319, mean(dtff.resid), sd(dtff.resid))
+par(mfrow=c(1,2))
+hist(dtff.resid)
+hist(n.dtff)
+```
+
